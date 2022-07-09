@@ -1,0 +1,25 @@
+{
+  "root": true, // .eslintrc.jsがプロジェクトのルートに配置させているか（指定がないと上位階層へ設定ファイルを探索される）
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "parser": "@typescript-eslint/parser", // ESLintにTypeScriptを理解させる
+  "plugins": ["@typescript-eslint", "import"],
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "ignorePatterns": [
+    "/lib/**/*" // Ignore built files.
+  ],
+  "extends": [
+    "eslint:recommended", // ESLintのJavaScriptルールセットを適用
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "google",
+    "plugin:@typescript-eslint/eslint-recommended", // eslint:recommendedに含まれるルールを型チェックでカバーできるものは無効化
+    "plugin:@typescript-eslint/recommended", // 型チェックが不要なルールを適用
+    "prettier"
+  ]
+}
