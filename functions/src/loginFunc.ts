@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions"
+import * as admin from "firebase-admin"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cors = require("cors")({ origin: true })
 import { AxiosResponse, AxiosRequestConfig } from "axios"
@@ -14,6 +15,8 @@ import {
   profileUrl,
 } from "./LoginItems"
 import { AuthResponse, AccessToken, UserProfile } from "./types"
+
+const db = admin.firestore()
 
 export const loginFunc = functions
   .region("asia-northeast1")
@@ -87,4 +90,12 @@ export const loginFunc = functions
       res.send(e)
     }
     // firebaseからグループ内の他ユーザを取得
+    try {
+      const gid = body.gid
+      const otherUserQuerySnapshot = await db.collection("groups").doc(gid).collection("users").get()
+      const otherUser: UserProfile = []
+      otherUserQuerySnapshot.forEach((doc) => {
+
+      })
+    }
   })
