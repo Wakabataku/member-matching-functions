@@ -10,8 +10,9 @@ import {
   clientId,
   redirectURL,
   accessUrl,
+  userProfileUrl,
 } from "./LoginItems"
-import { AccessToken } from "./types"
+import { AuthResponse, AccessToken, UserProfile } from "./types"
 
 export const loginFunc = functions
   .region("asia-northeast1")
@@ -45,6 +46,14 @@ export const loginFunc = functions
       },
     }
 
+    const responseData: AuthResponse = {
+      access_token: "",
+      name: "Unknown",
+      picture: "pictureURL",
+      sub: "noneSub",
+      otherUser: [],
+    }
+
     // アクセストークンのPOST
     try {
       const accessToken: AxiosResponse<AccessToken> = await getAccessToken({
@@ -53,10 +62,29 @@ export const loginFunc = functions
         config,
       })
       console.log(accessToken.data)
-      Object.assign(fbToken.access, accessToken.data)
-      console.log("Firebase Token: " + fbToken.access.access_token)
-      console.log("Access Token: " + accessToken.data.access_token)
+      responseData.access_token = accessToken.data.access_token
       // res.status(200).send({ name: "CHIBITA" })
+    } catch (e) {
+      res.send(e)
+    }
+    // ユーザプロフィールの取得
+    try {
+      const userProfileConfig = {
+        headers: {
+          Authorization: "Bearer " + responseData.access_token,
+        },
+      }
+      const userInfo: AxiosResponse<UserProfile> = await getUserProfile({
+        userProfileUrl,
+        userProfileConfig,
+      })
+      console.log("userInfo: " + userInfo.data.name)
+      Object.assign(fbToken, userInfo.data)
+      const sendItems = {
+        name: userInfo.data.name,
+        sub: userInfo.data.sub,
+      }
+      res.status(200).send(sendItems)
     } catch (e) {
       res.send(e)
     }
