@@ -4,10 +4,10 @@ import { UserProfile } from "../types"
 
 export const getUserProfile = async (props: {
   profileUrl: string
-  config: AxiosRequestConfig
+  profileConfig: AxiosRequestConfig
 }): Promise<AxiosResponse<UserProfile>> => {
   try {
-    return await axios.get(props.profileUrl, props.config)
+    return await axios.get(props.profileUrl, props.profileConfig)
   } catch (e: any) {
     throw new Error(e)
   }
