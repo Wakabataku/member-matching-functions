@@ -26,3 +26,14 @@ export type FbToken = {
   access: AccessToken
   lineU: LineUserInfo
 }
+
+export type UserProfile = {
+  sub: string
+  name: string
+  picture: string
+}
+
+export type AuthResponse = UserProfile & {
+  access_token: string
+  otherUser: UserProfile[]
+}
