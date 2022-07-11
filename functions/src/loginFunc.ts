@@ -27,7 +27,7 @@ export const loginFunc = functions
 
     // preflightが必要な時はokを返す
     // POSTはpreflightが必要
-    if (req.method == "OPTIONS") {
+    if (req.method === "OPTIONS") {
       cors(req, res, () => {
         res.status(200).send()
       })
@@ -92,6 +92,16 @@ export const loginFunc = functions
     // firebaseからグループ内の他ユーザを取得
     try {
       const gid = body.gid
+      const querySnapshot = await db
+        .collection("groups")
+        .doc(gid)
+        .collection("users")
+        .doc(responseData.sub)
+        .get()
+      const userInfo = querySnapshot.data()
+      if (!userInfo || !userInfo.isJoin) {
+        res.status(200).send("You have no right to access the group")
+      }
       const otherUserQuerySnapshot = await db
         .collection("groups")
         .doc(gid)

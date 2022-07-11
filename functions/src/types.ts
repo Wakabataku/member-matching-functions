@@ -10,6 +10,8 @@ export type AccessToken = {
   [key: string]: any
 }
 
+// name :string
+// picture: stringを含む
 export type UserProfile = DocumentData & {
   sub: string
 }
