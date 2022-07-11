@@ -92,10 +92,23 @@ export const loginFunc = functions
     // firebaseからグループ内の他ユーザを取得
     try {
       const gid = body.gid
-      const otherUserQuerySnapshot = await db.collection("groups").doc(gid).collection("users").get()
-      const otherUser: UserProfile = []
+      const otherUserQuerySnapshot = await db
+        .collection("groups")
+        .doc(gid)
+        .collection("users")
+        .get()
+      const otherUser: UserProfile[] = []
       otherUserQuerySnapshot.forEach((doc) => {
-
+        const docData = doc.data()
+        const docId: UserProfile = {
+          sub: doc.id,
+        }
+        const user: UserProfile = { ...docData, ...docId }
+        otherUser.push(user)
       })
+      responseData.otherUser = otherUser
+      res.status(200).send(responseData)
+    } catch (e) {
+      res.send(e)
     }
   })

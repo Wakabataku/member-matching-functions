@@ -1,3 +1,5 @@
+import { DocumentData } from "@google-cloud/firestore"
+
 export type AccessToken = {
   access_token: string
   expires_in: number
@@ -8,29 +10,8 @@ export type AccessToken = {
   [key: string]: any
 }
 
-export type LineUserInfo = {
-  iss: string
+export type UserProfile = DocumentData & {
   sub: string
-  aud: string
-  exp: number
-  iat: number
-  auth_time: number
-  nonce: string
-  amr: string
-  name: string
-  picture: string
-  [key: string]: any
-}
-
-export type FbToken = {
-  access: AccessToken
-  lineU: LineUserInfo
-}
-
-export type UserProfile = {
-  sub: string
-  name: string
-  picture: string
 }
 
 export type AuthResponse = UserProfile & {
