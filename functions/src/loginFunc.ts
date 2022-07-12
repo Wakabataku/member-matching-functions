@@ -34,6 +34,14 @@ export const loginFunc = functions
       return
     }
 
+    const responseData: AuthResponse = {
+      access_token: "",
+      name: "Unknown",
+      picture: "pictureURL",
+      sub: "noneSub",
+      otherUser: [],
+    }
+
     const body = req.body
     if (body === undefined) {
       res.status(400).send("bodyの中身が不正です")
@@ -50,14 +58,6 @@ export const loginFunc = functions
       },
     }
 
-    const responseData: AuthResponse = {
-      access_token: "",
-      name: "Unknown",
-      picture: "pictureURL",
-      sub: "noneSub",
-      otherUser: [],
-    }
-
     // アクセストークンのPOST
     try {
       const accessToken: AxiosResponse<AccessToken> = await getAccessToken({
@@ -68,8 +68,9 @@ export const loginFunc = functions
       console.log(accessToken.data)
       responseData.access_token = accessToken.data.access_token
       // res.status(200).send({ name: "CHIBITA" })
-    } catch (e) {
-      res.send(e)
+    } catch (e: any) {
+      console.error(e.message)
+      res.status(400).send(e)
     }
     // ユーザプロフィールの取得
     try {
@@ -86,8 +87,9 @@ export const loginFunc = functions
       responseData.name = userProfile.data.name
       responseData.picture = userProfile.data.picture
       responseData.sub = userProfile.data.sub
-    } catch (e) {
-      res.send(e)
+    } catch (e: any) {
+      console.error(e.message)
+      res.status(400).send(e)
     }
     // firebaseからグループ内の他ユーザを取得
     try {
@@ -100,7 +102,7 @@ export const loginFunc = functions
         .get()
       const userInfo = querySnapshot.data()
       if (!userInfo || !userInfo.isJoin) {
-        res.status(200).send("You have no right to access the group")
+        res.status(400).send("You have no right to access the group")
       }
       const otherUserQuerySnapshot = await db
         .collection("groups")
@@ -118,7 +120,8 @@ export const loginFunc = functions
       })
       responseData.otherUser = otherUser
       res.status(200).send(responseData)
-    } catch (e) {
-      res.send(e)
+    } catch (e: any) {
+      console.error(e.message)
+      res.status(400).send(e)
     }
   })
