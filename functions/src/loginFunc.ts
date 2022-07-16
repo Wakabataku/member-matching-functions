@@ -1,5 +1,4 @@
 import * as functions from "firebase-functions"
-import * as admin from "firebase-admin"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cors = require("cors")({ origin: true })
 import { AxiosResponse, AxiosRequestConfig } from "axios"
@@ -15,8 +14,7 @@ import {
   profileUrl,
 } from "./LoginItems"
 import { AuthResponse, AccessToken, UserProfile } from "./types"
-
-const db = admin.firestore()
+import { db } from "./index"
 
 export const loginFunc = functions
   .region("asia-northeast1")
@@ -87,6 +85,16 @@ export const loginFunc = functions
       responseData.name = userProfile.data.name
       responseData.picture = userProfile.data.picture
       responseData.sub = userProfile.data.sub
+    } catch (e: any) {
+      console.error(e.message)
+      res.status(400).send(e)
+    }
+    // firestoreにアクセストークンを保存
+    try {
+      await db
+        .collection("users")
+        .doc(responseData.sub)
+        .set({ access_token: responseData.access_token }, { merge: true })
     } catch (e: any) {
       console.error(e.message)
       res.status(400).send(e)

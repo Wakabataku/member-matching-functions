@@ -4,4 +4,6 @@ admin.initializeApp(functions.config().firebase)
 
 import { loginFunc } from "./loginFunc"
 
+export const db = admin.firestore()
+
 export const login = loginFunc
