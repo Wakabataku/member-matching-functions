@@ -16,7 +16,28 @@ export type UserProfile = DocumentData & {
   sub: string
 }
 
+export type DBUserProfile = UserProfile & {
+  isJoin: boolean
+}
+
 export type AuthResponse = UserProfile & {
   access_token: string
   otherUser: UserProfile[]
+}
+
+export type Sub = {
+  sub: string
+}
+
+export type EventItem = {
+  starttime: number
+  endtime: number
+  blockUser: string[]
+}
+
+export type FbEventItem = Sub & EventItem
+
+export type Event = EventItem & {
+  gid: string
+  access_token: string
 }

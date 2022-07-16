@@ -81,7 +81,6 @@ export const loginFunc = functions
         profileUrl,
         profileConfig,
       })
-      console.log("userProfile: " + userProfile.data.name)
       responseData.name = userProfile.data.name
       responseData.picture = userProfile.data.picture
       responseData.sub = userProfile.data.sub
