@@ -78,4 +78,5 @@ export const addEvent = functions
       console.error(e.message)
       res.status(400).send(e)
     }
+    res.status(200).send(true)
   })
