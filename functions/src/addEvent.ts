@@ -1,12 +1,10 @@
 import * as functions from "firebase-functions"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cors = require("cors")({ origin: true })
-import { AxiosRequestConfig, AxiosResponse } from "axios"
 
 import { db } from "./index"
-import { postUrl, profileUrl, eventsCol, groupCol, userCol } from "./LoginItems"
-import { Event, UserProfile, Sub, FbEventItem } from "./types"
-import { getUserProfile } from "./lib/getUserProfile"
+import { postUrl, eventsCol, groupCol, userCol } from "./LoginItems"
+import { Event, Sub, FbEventItem } from "./types"
 
 export const addEvent = functions
   .region("asia-northeast1")
@@ -32,18 +30,33 @@ export const addEvent = functions
       sub: "",
     }
     // アクセストークンからユーザID取得
+    // try {
+    //   const profileConfig: AxiosRequestConfig = {
+    //     headers: {
+    //       Authorization: "Bearer " + body.access_token,
+    //     },
+    //   }
+    //   const userProfile: AxiosResponse<UserProfile> = await getUserProfile({
+    //     profileUrl,
+    //     profileConfig,
+    //   })
+    //   console.log("userProfile: " + userProfile.data.name)
+    //   onlySub.sub = userProfile.data.sub
+    // } catch (e: any) {
+    //   console.error(e.message)
+    //   res.status(400).send(e.message)
+    // }
+
+    // アクセストークンからFirestoreよりsubを取得
     try {
-      const profileConfig: AxiosRequestConfig = {
-        headers: {
-          Authorization: "Bearer " + body.access_token,
-        },
-      }
-      const userProfile: AxiosResponse<UserProfile> = await getUserProfile({
-        profileUrl,
-        profileConfig,
+      const userDoc = await db
+        .collection(userCol)
+        .where("access_token", "==", body.access_token)
+        .get()
+      userDoc.forEach((doc) => {
+        onlySub.sub = doc.id
       })
-      console.log("userProfile: " + userProfile.data.name)
-      onlySub.sub = userProfile.data.sub
+      console.log("sub is " + onlySub.sub)
     } catch (e: any) {
       console.error(e.message)
       res.status(400).send(e)
@@ -55,6 +68,7 @@ export const addEvent = functions
       endtime: body.endtime,
       blockUser: body.blockUser,
     }
+    // Firestoreにイベント登録
     try {
       const userQuerySnapshot = await db
         .collection(groupCol)
@@ -73,10 +87,11 @@ export const addEvent = functions
         .collection(groupCol)
         .doc(body.gid)
         .collection(eventsCol)
-        .add(addItems)
+        .doc(body.starttime.toString())
+        .set(addItems, { merge: true })
     } catch (e: any) {
       console.error(e.message)
-      res.status(400).send(e)
+      res.status(400).send(e.message)
     }
     res.status(200).send(true)
   })
