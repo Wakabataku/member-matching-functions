@@ -1,10 +1,12 @@
 import * as functions from "firebase-functions"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cors = require("cors")({ origin: true })
+import { AxiosRequestConfig, AxiosResponse } from "axios"
 
 import { db } from "./index"
-import { postUrl, eventsCol, groupCol, userCol } from "./LoginItems"
-import { Event, Sub, FbEventItem } from "./types"
+import { postUrl, profileUrl, eventsCol, groupCol, userCol } from "./LoginItems"
+import { Event, Sub, UserProfile, FbEventItem } from "./types"
+import { getUserProfile } from "./lib/getUserProfile"
 
 export const addEvent = functions
   .region("asia-northeast1")
@@ -26,41 +28,28 @@ export const addEvent = functions
     if (body === undefined) {
       res.status(400).send("bodyの中身が不正です")
     }
+    console.log(body)
     const onlySub: Sub = {
       sub: "",
     }
     // アクセストークンからユーザID取得
-    // try {
-    //   const profileConfig: AxiosRequestConfig = {
-    //     headers: {
-    //       Authorization: "Bearer " + body.access_token,
-    //     },
-    //   }
-    //   const userProfile: AxiosResponse<UserProfile> = await getUserProfile({
-    //     profileUrl,
-    //     profileConfig,
-    //   })
-    //   console.log("userProfile: " + userProfile.data.name)
-    //   onlySub.sub = userProfile.data.sub
-    // } catch (e: any) {
-    //   console.error(e.message)
-    //   res.status(400).send(e.message)
-    // }
-
-    // アクセストークンからFirestoreよりsubを取得
     try {
-      const userDoc = await db
-        .collection(userCol)
-        .where("access_token", "==", body.access_token)
-        .get()
-      userDoc.forEach((doc) => {
-        onlySub.sub = doc.id
+      const profileConfig: AxiosRequestConfig = {
+        headers: {
+          Authorization: "Bearer " + body.access_token,
+        },
+      }
+      const userProfile: AxiosResponse<UserProfile> = await getUserProfile({
+        profileUrl,
+        profileConfig,
       })
-      console.log("sub is " + onlySub.sub)
+      console.log("userProfile: " + userProfile.data.name)
+      onlySub.sub = userProfile.data.sub
     } catch (e: any) {
       console.error(e.message)
-      res.status(400).send(e)
+      res.status(400).send(e.message)
     }
+
     // ユーザIDを使って，Firestoreにeventを登録
     const addItems: FbEventItem = {
       sub: onlySub.sub,
