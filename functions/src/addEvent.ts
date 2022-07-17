@@ -72,11 +72,12 @@ export const addEvent = functions
       if (!userInfo.isJoin) {
         res.status(400).send("グループでイベントを作成する権利がありません")
       }
+      const today = new Date()
       await db
         .collection(groupCol)
         .doc(body.gid)
         .collection(eventsCol)
-        .doc(body.starttime.toString())
+        .doc(today.getTime().toString())
         .set(addItems, { merge: true })
     } catch (e: any) {
       console.error(e.message)
