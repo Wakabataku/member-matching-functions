@@ -41,3 +41,9 @@ export type Event = EventItem & {
   gid: string
   access_token: string
 }
+
+export type MatchEvent = {
+  user: string[]
+  starttime: number[]
+  endtime: number[]
+}
